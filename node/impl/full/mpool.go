@@ -179,3 +179,6 @@ func (a *MpoolAPI) MpoolGetNonce(ctx context.Context, addr address.Address) (uin
 func (a *MpoolAPI) MpoolSub(ctx context.Context) (<-chan api.MpoolUpdate, error) {
 	return a.Mpool.Updates(ctx)
 }
+
+MpoolReplaceMessage(ctx context.Context, nonce uint64, gaslimit int64, gasfeecap abi.TokenAmount, gaspremium abi.TokenAmount)(*types.SignedMessage, error)
+
