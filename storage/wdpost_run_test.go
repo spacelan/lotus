@@ -5,8 +5,6 @@ import (
 	"context"
 	"testing"
 
-	"github.com/filecoin-project/go-state-types/dline"
-
 	"golang.org/x/xerrors"
 
 	"github.com/stretchr/testify/require"
@@ -20,6 +18,8 @@ import (
 	"github.com/filecoin-project/specs-actors/actors/builtin"
 	"github.com/filecoin-project/specs-actors/actors/builtin/miner"
 	"github.com/filecoin-project/specs-actors/actors/runtime/proof"
+
+	"github.com/filecoin-project/go-state-types/dline"
 
 	"github.com/filecoin-project/go-state-types/abi"
 	"github.com/filecoin-project/go-state-types/crypto"
@@ -158,7 +158,10 @@ func TestWDPostDoPost(t *testing.T) {
 
 	di := &dline.Info{}
 	ts := mockTipSet(t)
-	scheduler.doPost(ctx, di, ts)
+
+	scheduler.startGeneratePoST(ctx, ts, di, func(posts []miner.SubmitWindowedPoStParams, err error) {
+		scheduler.startSubmitPoST(ctx, ts, di, posts, func(err error) {})
+	})
 
 	// Read the window PoST messages
 	for i := 0; i < expectedMsgCount; i++ {
