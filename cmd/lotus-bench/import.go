@@ -204,7 +204,7 @@ var importBenchCmd = &cli.Command{
 			return err
 		}
 
-		startEpoch := abi.ChainEpoch(0)
+		startEpoch := abi.ChainEpoch(1)
 		if cctx.IsSet("start-at") {
 			startEpoch = abi.ChainEpoch(cctx.Int64("start-at"))
 			start, err := cs.GetTipsetByHeight(context.TODO(), abi.ChainEpoch(cctx.Int64("start-at")), head, true)
