@@ -249,14 +249,16 @@ var importBenchCmd = &cli.Command{
 			cur := tschain[i]
 			log.Infof("computing state (height: %d, ts=%s)", cur.Height(), cur.Cids())
 			if cur.ParentState() != lastState {
-				stripCallers(lastTse.Trace)
-				lastTrace := lastTse.Trace
-				d, err := json.MarshalIndent(lastTrace, "", "  ")
-				if err != nil {
-					panic(err)
+				if lastTse != nil {
+					stripCallers(lastTse.Trace)
+					lastTrace := lastTse.Trace
+					d, err := json.MarshalIndent(lastTrace, "", "  ")
+					if err != nil {
+						panic(err)
+					}
+					fmt.Println("TRACE")
+					fmt.Println(string(d))
 				}
-				fmt.Println("TRACE")
-				fmt.Println(string(d))
 				return xerrors.Errorf("tipset chain had state mismatch at height %d (%s != %s)", cur.Height(), cur.ParentState(), lastState)
 			}
 			start := time.Now()
