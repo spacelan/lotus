@@ -197,7 +197,9 @@ var importBenchCmd = &cli.Command{
 			return err
 		}
 
+		startEpoch := abi.ChainEpoch(0)
 		if cctx.IsSet("start-at") {
+			startEpoch = abi.ChainEpoch(cctx.Int64("start-at"))
 			start, err := cs.GetTipsetByHeight(context.TODO(), abi.ChainEpoch(cctx.Int64("start-at")), head, true)
 			if err != nil {
 				return err
@@ -219,7 +221,7 @@ var importBenchCmd = &cli.Command{
 
 		ts := head
 		tschain := []*types.TipSet{ts}
-		for ts.Height() != 0 {
+		for ts.Height() > startEpoch {
 			next, err := cs.LoadTipSet(ts.Parents())
 			if err != nil {
 				return err
