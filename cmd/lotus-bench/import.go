@@ -221,7 +221,7 @@ var importBenchCmd = &cli.Command{
 
 		ts := head
 		tschain := []*types.TipSet{ts}
-		for ts.Height() > startEpoch {
+		for ts.Height() >= startEpoch {
 			next, err := cs.LoadTipSet(ts.Parents())
 			if err != nil {
 				return err
@@ -242,43 +242,37 @@ var importBenchCmd = &cli.Command{
 			enc = json.NewEncoder(ibj)
 		}
 
-		var lastTse *TipSetExec
-
-		lastState := tschain[len(tschain)-1].ParentState()
 		for i := len(tschain) - 2; i >= 0; i-- {
 			cur := tschain[i]
-			log.Infof("computing state (height: %d, ts=%s)", cur.Height(), cur.Cids())
-			if cur.ParentState() != lastState {
-				if lastTse != nil {
-					stripCallers(lastTse.Trace)
-					lastTrace := lastTse.Trace
-					d, err := json.MarshalIndent(lastTrace, "", "  ")
-					if err != nil {
-						panic(err)
-					}
-					fmt.Println("TRACE")
-					fmt.Println(string(d))
-				}
-				return xerrors.Errorf("tipset chain had state mismatch at height %d (%s != %s)", cur.Height(), cur.ParentState(), lastState)
-			}
 			start := time.Now()
+			log.Infof("computing state (height: %d, ts=%s)", cur.Height(), cur.Cids())
 			st, trace, err := stm.ExecutionTrace(context.TODO(), cur)
 			if err != nil {
 				return err
 			}
-			lastTse = &TipSetExec{
+			tse := &TipSetExec{
 				TipSet:   cur.Key(),
 				Trace:    trace,
 				Duration: time.Since(start),
 			}
 			if enc != nil {
-				stripCallers(lastTse.Trace)
+				stripCallers(tse.Trace)
 
-				if err := enc.Encode(lastTse); err != nil {
+				if err := enc.Encode(tse); err != nil {
 					return xerrors.Errorf("failed to write out tipsetexec: %w", err)
 				}
 			}
-			lastState = st
+			if cur.ParentState() != st {
+				stripCallers(tse.Trace)
+				lastTrace := tse.Trace
+				d, err := json.MarshalIndent(lastTrace, "", "  ")
+				if err != nil {
+					panic(err)
+				}
+				fmt.Println("TRACE")
+				fmt.Println(string(d))
+				return xerrors.Errorf("tipset chain had state mismatch at height %d (%s != %s)", cur.Height(), cur.ParentState(), st)
+			}
 		}
 
 		pprof.StopCPUProfile()
