@@ -28,6 +28,7 @@ import (
 
 	"github.com/filecoin-project/go-state-types/abi"
 	"github.com/filecoin-project/lotus/extern/sector-storage/ffiwrapper"
+	"github.com/filecoin-project/statediff"
 
 	bdg "github.com/dgraph-io/badger/v2"
 	"github.com/ipfs/go-datastore"
@@ -271,6 +272,7 @@ var importBenchCmd = &cli.Command{
 				}
 				fmt.Println("TRACE")
 				fmt.Println(string(d))
+				statediff.Diff(context.Background(), bs, tschain[i-1].ParentState(), st)
 				return xerrors.Errorf("tipset chain had state mismatch at height %d (%s != %s)", cur.Height(), cur.ParentState(), st)
 			}
 		}
