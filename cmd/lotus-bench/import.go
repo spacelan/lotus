@@ -79,6 +79,9 @@ var importBenchCmd = &cli.Command{
 		&cli.BoolFlag{
 			Name: "only-gc",
 		},
+		&cli.Int64Flag{
+			Name: "start-at",
+		},
 	},
 	Action: func(cctx *cli.Context) error {
 		vm.BatchSealVerifyParallelism = cctx.Int("batch-seal-verify-threads")
@@ -192,6 +195,18 @@ var importBenchCmd = &cli.Command{
 		err = cs.SetGenesis(gb.Blocks()[0])
 		if err != nil {
 			return err
+		}
+
+		if cctx.IsSet("start-at") {
+			start, err := cs.GetTipsetByHeight(context.TODO(), abi.ChainEpoch(cctx.Int64("start-at")), head, true)
+			if err != nil {
+				return err
+			}
+
+			err = cs.SetHead(start)
+			if err != nil {
+				return err
+			}
 		}
 
 		if h := cctx.Int64("height"); h != 0 {
