@@ -242,7 +242,7 @@ var importBenchCmd = &cli.Command{
 			enc = json.NewEncoder(ibj)
 		}
 
-		for i := len(tschain) - 2; i >= 0; i-- {
+		for i := len(tschain) - 1; i >= 0; i-- {
 			cur := tschain[i]
 			start := time.Now()
 			log.Infof("computing state (height: %d, ts=%s)", cur.Height(), cur.Cids())
@@ -262,7 +262,7 @@ var importBenchCmd = &cli.Command{
 					return xerrors.Errorf("failed to write out tipsetexec: %w", err)
 				}
 			}
-			if tschain[i+1].ParentState() != st {
+			if tschain[i].ParentState() != st {
 				stripCallers(tse.Trace)
 				lastTrace := tse.Trace
 				d, err := json.MarshalIndent(lastTrace, "", "  ")
