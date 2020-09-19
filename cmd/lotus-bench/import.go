@@ -228,7 +228,7 @@ var importBenchCmd = &cli.Command{
 
 		ts := head
 		tschain := []*types.TipSet{ts}
-		for ts.Height() >= startEpoch {
+		for ts.Height() > startEpoch {
 			next, err := cs.LoadTipSet(ts.Parents())
 			if err != nil {
 				return err
