@@ -272,7 +272,7 @@ var importBenchCmd = &cli.Command{
 				}
 				fmt.Println("TRACE")
 				fmt.Println(string(d))
-				statediff.Diff(context.Background(), bs, tschain[i-1].ParentState(), st)
+				fmt.Println(statediff.Diff(context.Background(), bs, tschain[i-1].ParentState(), st, statediff.ExpandActors))
 				return xerrors.Errorf("tipset chain had state mismatch at height %d (%s != %s)", cur.Height(), cur.ParentState(), st)
 			}
 		}
