@@ -27,13 +27,11 @@ func move(from, to string) error {
 
 	log.Debugw("move sector data", "from", from, "to", to)
 
-	toDir := filepath.Dir(to)
-
 	// `mv` has decades of experience in moving files quickly; don't pretend we
 	//  can do better
 
 	var errOut bytes.Buffer
-	cmd := exec.Command("/usr/bin/env", "mv", "-t", toDir, from) // nolint
+	cmd := exec.Command("/usr/bin/env", "mv", from, to) // nolint
 	cmd.Stderr = &errOut
 	if err := cmd.Run(); err != nil {
 		return xerrors.Errorf("exec mv (stderr: %s): %w", strings.TrimSpace(errOut.String()), err)
